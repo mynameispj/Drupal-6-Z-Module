@@ -1,0 +1,109 @@
+<?php
+// $Id$
+/**
+* @file
+* Overrides default display of exposed views filter
+* Props: http://drupal.stackexchange.com/questions/1812/change-the-default-selection-for-a-views-2-exposed-filter
+*/
+
+/**
+* Implementation of hook_form_alter
+**/
+
+function z_masterfit_ui_customized_form_alter(&$form, $form_state, $form_id) {
+	
+	if($form['#id'] == 'node-form') {
+		$form['options']['#collapsed'] = FALSE;
+		unset($form['base']['weight']);
+		unset($form['base']['dimensions']);
+		$form['base']['pkg_qty']['#type'] = 'Hidden';
+		$form['base']['default_qty']['#type'] = 'Hidden';
+		$form['base']['ordering']['#type'] = 'Hidden';
+		unset($form['base']['dimensions']);
+		$form['taxonomy']['#title'] = 'Product Tags';
+		$form['options']['status']['#title'] = 'Show this item';
+		$form['options']['promote']['#type'] = 'Hidden';
+		$form['options']['sticky']['#type'] = 'Hidden';		 
+	}
+
+
+	// is this the right form?
+	if($form['#id'] == 'user-profile-form') {
+		$form['submit']['#value'] = 'Update your account';
+		$form['delete']['#value'] = 'Delete your account';
+	}
+	
+	if($form['#id'] == 'user-pass') {
+		$form['submit']['#value'] = 'Send me a replacement password!';
+	}
+	
+	if($form['#id'] == 'search-block-form') {
+		//$form['search_block_form']['#default_value'] = 'Zoll R Series, Corometrics Fetal, etc…';
+	
+	} 	 
+	
+	if($form['#id'] == 'search-form') {
+		//print krumo($form);	
+	} 
+
+	if($form['#id'] == 'taxonomy-form-term') {
+		global $user;
+		//print krumo($form);	
+		$form['taxonomy_image']['#title'] = 'Tag Image'; 
+		unset($form['taxonomy_image']['taxonomy_image_external']);
+		$form['taxonomy_image']['#collapsed'] = FALSE;
+		$form['identification']['name']['#title'] = 'Tag';
+		$form['identification']['name']['#description'] = 'The name of this tag';
+		if ($user->uid != 1) {
+			$form['taxonomy_breadcrumb_path']['#type'] = 'Hidden';
+			unset($form['advanced']);
+		}
+	} 
+	
+	
+	if($form['#id'] == 'nodequeue-arrange-subqueue-form') {
+		//krumo($form);
+		if ($form['#queue']['name'] == 'featured_products') {
+			$form['#prefix'] = '<p>Simply click and drag the items on handle icon to rearrange the order of the Featured Products.</p>
+			<p>To add a product to the Featured Products list, check "Featured Product" on the product\'s edit screen.</p>
+			<p><b>NOTE: The product at the top of the page will be displayed larger than the other items on the home page.</b></p> ';
+			drupal_set_title('Rearrange the Featured Products Order');
+		}
+		
+		if ($form['#queue']['name'] == 'slideshow_queue') {
+			drupal_set_title('Rearrange the Home Page Slides Order');
+			$form['#prefix'] = '<p>Simply click and drag the items on handle icon to rearrange the order of the Home Page Slides.</p> ';			
+		}	
+		unset($form['add']);
+	} 
+	
+
+	
+}
+
+function z_masterfit_ui_customized_menu() {
+  $items = array();
+
+  $items['admin/flush-cache'] = array(
+  'type' => MENU_NORMAL_ITEM,
+  'title' => t('Flush the cache'),
+  'description' => 'Flush all website caches to make sure it updates to relect '.
+    'your recent changes.',
+  'page callback' => 'flush_cache_custom_callback',
+  'access callback' => user_access('flush cache'),
+  );
+
+  return $items;
+}
+
+function z_masterfit_ui_customized_perm() {
+  return array('flush cache');
+}
+
+function flush_cache_custom_callback() {
+  drupal_flush_all_caches();
+
+  drupal_set_message('Cache cleared.');
+
+  drupal_goto('admin');
+}

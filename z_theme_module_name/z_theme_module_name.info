@@ -1,0 +1,5 @@
+name = Name of your module, yo
+description = A custom module to do something sweet
+core = 6.x
+package = Package name (groups that the module is organized with on the modules page) 
+php = 5.1
